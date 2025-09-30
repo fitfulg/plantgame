@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Plant Identification Game</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      text-align: center; 
+      background-color: #121212; 
+      color: #e0e0e0; 
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { color: #90caf9; }
+    #plant-container {
+      display: inline-block;
+      overflow: hidden;
+      border: 2px solid #555; 
+      border-radius: 10px;
+      background-color: #1e1e1e;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+    #plant-image {
+      width: auto;
+      height: 70vh;        /* uniform size for all plants */
+      max-width: 90vw;
+      object-fit: contain; /* keeps proportions */
+      margin: 10px auto;
+      display: block;
+      transition: transform 0.2s ease;
+    }
+    input { 
+      padding: 8px; 
+      font-size: 18px; 
+      width: 250px; 
+      border: 2px solid #555;
+      border-radius: 5px;
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+    }
+    button { 
+      padding: 8px 16px; 
+      font-size: 18px; 
+      margin: 5px; 
+      border: none;
+      border-radius: 5px;
+      background-color: #1976d2; 
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background-color: #1565c0; }
+    #result { font-size: 22px; font-weight: bold; margin-top: 15px; }
+    .sci-name { color: #ffffff; font-weight: bold; }
+    .common-name { color: #81c784; font-style: italic; margin-left: 10px; }
+    #scoreboard { margin: 15px 0; font-size: 18px; }
+    #scoreboard span { margin: 0 10px; }
+    #summary {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #ffeb3b;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌱 Plant Identification</h1>
+
+  <div id="scoreboard">
+    ✅ Correct: <span id="correct-count">0</span>  
+    ❌ Wrong: <span id="wrong-count">0</span>  
+    🔢 Attempts: <span id="attempt-count">0</span>
+  </div>
+
+  <div id="plant-container">
+    <img id="plant-image" src="" alt="plant">
+  </div>
+  <br>
+  <input type="text" id="guess" placeholder="Type the name...">
+  <button id="action-button" onclick="checkOrNext()">Continue</button>
+  <p id="result"></p>
+  <p id="summary"></p>
+
+  <script>
+    // Dictionary of plants with arrays of images
+    const plants = {
+      "abeliaxgrandiflora": [
+        "AbeliaXgrandiflora.png",
+        "abelia2.png"
+      ],
+      "acanthus mollis": [
+        "Acanthus_mollis.png",
+        "acant2.png"
+      ],
+      "acca sellowiana": [
+        "Acca_sellowiana.png",
+        "feijoa-acca-sellowiana-semillas.png",
+        "feijoa.png"
+      ],
+      "acer monspessulanum": [
+        "Acer_monspessulanum.png",
+        "acer2.png"
+      ],
+      "agapanthus africanus": [
+        "Agapanthus africanus.png"
+      ],
+      "albizia julibrissin":[
+        "Albizia julibrissin.png",
+        "albizia2.png"
+      ],
+      "arbutus unedo":[
+        "arbutus unedo.png",
+        "arbutusunedo2.png"
+      ],
+      "asparagus densiflorus":[
+        "Asparagus densiflorus.png",
+        "asparagus2.png"
+      ]
+    };
+
+    // Dictionary of Catalan common names
+    const commonNames = {
+      "abeliaxgrandiflora": "Abèlia",
+      "acanthus mollis": "Acant de fulla ampla",
+      "acca sellowiana": "Feijoa",
+      "acer monspessulanum": "Auró negre",
+      "agapanthus africanus": "Agapant",
+      "albizia julibrissin": "Acàcia de Constantinoble / Árbol de la seda",
+      "arbutus unedo": "Cireretes de pastor / Madroño",
+      "asparagus densiflorus": "Esparraguera de jardí"
+    };
+
+    // Current state variables
+    let currentSciName = "";
+    let currentImage = "";
+    let zoomLevel = 1;
+    let attempts = 0;
+    let correct = 0;
+    let wrong = 0;
+
+    // Phase control: 1 = scientific name, 2 = common name
+    let phase = 1;
+    let answered = false;
+
+    // Deck system
+    let deck = [];
+    let deckIndex = 0;
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function initDeck() {
+      deck = shuffle(Object.keys(plants).slice());
+      deckIndex = 0;
+      document.getElementById("summary").textContent = "🔄 New cycle started";
+      setTimeout(() => {
+        document.getElementById("summary").textContent = "";
+      }, 1500);
+    }
+
+    // Normalize text: remove accents and lowercase
+    function normalize(text) {
+      return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    // Select next plant
+    function nextPlant() {
+      if (deck.length === 0 || deckIndex >= deck.length) {
+        initDeck();
+      }
+
+      currentSciName = deck[deckIndex];
+      deckIndex++;
+
+      // Choose a random image for this plant
+      let imgs = plants[currentSciName];
+      currentImage = imgs[Math.floor(Math.random() * imgs.length)];
+
+      // Show the image
+      const img = document.getElementById("plant-image");
+      img.src = currentImage;
+      img.style.transform = "scale(1)";
+      img.style.transformOrigin = "center center"; 
+      zoomLevel = 1;
+
+      // Reset state
+      document.getElementById("result").textContent = "";
+      const guessInput = document.getElementById("guess");
+      guessInput.value = "";
+      guessInput.disabled = false;
+      guessInput.focus();
+      answered = false;
+      phase = 1;
+    }
+
+    // Check answer or move to next
+    function checkOrNext() {
+      const guessInput = document.getElementById("guess");
+      const guess = normalize(guessInput.value.trim());
+      const sciName = normalize(currentSciName);
+      const common = normalize(commonNames[currentSciName] || "");
+
+      // If already answered or guess is empty → move to next plant
+      if (answered || guess === "") {
+        attempts++;
+        updateScoreboard();
+        nextPlant();
+        return;
+      }
+
+      // Phase 1: scientific name
+      if (phase === 1) {
+        attempts++;
+        if (guess.length >= 3 && sciName.includes(guess)) {
+          document.getElementById("result").innerHTML = 
+            `✅ Correct (phase 1) → <span class="sci-name">${currentSciName}</span>`;
+          phase = 2; // move to phase 2
+          guessInput.value = "";
+        } else {
+          wrong++;
+          document.getElementById("result").innerHTML = 
+            `❌ It was: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""}</span>`;
+          answered = true;
+        }
+        updateScoreboard();
+        return;
+      }
+
+      // Phase 2: common name
+      if (phase === 2) {
+        attempts++;
+        if (guess.length >= 3 && common.includes(guess)) {
+          correct++;
+          document.getElementById("result").innerHTML = 
+            `✅ Correct (phase 2) → <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""}</span>`;
+        } else {
+          wrong++;
+          document.getElementById("result").innerHTML = 
+            `❌ It was: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""}</span>`;
+        }
+        answered = true;
+        updateScoreboard();
+      }
+    }
+
+    // Update scoreboard values
+    function updateScoreboard() {
+      document.getElementById("correct-count").textContent = correct;
+      document.getElementById("wrong-count").textContent = wrong;
+      document.getElementById("attempt-count").textContent = attempts;
+    }
+
+    // Zoom with mouse wheel, centered on cursor
+    const img = document.getElementById("plant-image");
+    img.addEventListener("wheel", (event) => {
+      event.preventDefault();
+      const rect = img.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      img.style.transformOrigin = `${x}% ${y}%`;
+
+      if (event.deltaY < 0) {
+        zoomLevel += 0.1;
+      } else {
+        zoomLevel = Math.max(0.5, zoomLevel - 0.1);
+      }
+      img.style.transform = `scale(${zoomLevel})`;
+    });
+
+    // Pressing Enter = click the button
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        document.getElementById("action-button").click();
+        document.getElementById("guess").focus();
+      }
+    });
+
+    // Start the game
+    initDeck();
+    nextPlant();
+  </script>
+</body>
+</html>
