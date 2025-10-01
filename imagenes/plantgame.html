@@ -194,6 +194,31 @@
         "buxus2.png",
         "buxus3.png",
       ],
+      "calendula officinalis": [
+        "Calendula officinalis.png",
+        "Calendula2.png"
+      ],
+      "callistemon citrinus": [
+        "Callistemon citrinus.png",
+        "Callistemon2.png"
+      ],
+      "catalpa bignonioides": [
+        "Catalpa bignonioides.png",
+        "Catalpa2.png",
+        "Catalpa3.png"
+      ],
+      "cedrus deodara": [
+        "Cedrus deodara.png",
+        "Cedrus2.png"
+      ],
+      "celtis australis": [
+        "Celtis australis.png",
+        "Celtis2.png"
+      ],
+      "ceratonia siliqua": [
+        "Ceratonia siliqua.png",
+        "Ceratonia2.png"
+      ]
     };
 
     // Dictionary of Catalan common names
@@ -211,6 +236,12 @@
       "bougainvillea glabra": "Buguenvíl·lea / Buganvilla común",
       "brachychiton populneus": "Arbre ampolla / Árbol botella",
       "buxus sempervirens": "Boix comú / Boj",
+      "calendula officinalis": "Calèndula / Boixac Anual / Flamenquilla",
+      "callistemon citrinus": "Escura-xemeneies / Limpiatubos",
+      "catalpa bignonioides": "Catalpa",
+      "cedrus deodara": "Cedre de l'Himàlaia",
+      "celtis australis": "Lledoner / Almer",
+      "ceratonia siliqua": "Garrofer / Algarrobo"
     };
 
     // Current state variables
@@ -351,7 +382,7 @@
           document.getElementById(
             "result"
           ).innerHTML = `❌ It was: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""
-            }</span>`;
+          }</span>`;
           answered = true;
         }
         updateScoreboard();
@@ -366,7 +397,7 @@
           document.getElementById(
             "result"
           ).innerHTML = `✅ Correct (phase 2) → <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""
-            }</span>`;
+          }</span>`;
 
           // remove current image from remaining
           remainingImages[currentSciName] = remainingImages[
@@ -395,7 +426,7 @@
           document.getElementById(
             "result"
           ).innerHTML = `❌ It was: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""
-            }</span>`;
+          }</span>`;
           // stays in deck
         }
         answered = true;
