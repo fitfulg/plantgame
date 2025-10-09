@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Plant Identification Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #90caf9;
+    }
+
+    #plant-container {
+      display: inline-block;
+      overflow: hidden;
+      border: 2px solid #555;
+      border-radius: 10px;
+      background-color: #1e1e1e;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+
+    #plant-image {
+      width: auto;
+      max-height: 60vh;
+      max-width: 90vw;
+      object-fit: contain;
+      margin: 10px auto;
+      display: block;
+      transition: transform 0.2s ease;
+    }
+
+
+    input {
+      padding: 8px;
+      font-size: 18px;
+      width: 250px;
+      border: 2px solid #555;
+      border-radius: 5px;
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 18px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      background-color: #1976d2;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+
+    #deck-select {
+      font-size: 18px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+      border: 2px solid #555;
+      margin-top: 10px;
+    }
+
+    #result {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    .sci-name {
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .common-name {
+      color: #81c784;
+      font-style: italic;
+      margin-left: 10px;
+    }
+
+    #scoreboard {
+      margin: 15px 0;
+      font-size: 18px;
+    }
+
+    #scoreboard span {
+      margin: 0 10px;
+    }
+
+    #summary {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #ffeb3b;
+    }
+
+    #plant-list {
+      position: fixed;
+      right: 10px;
+      top: 80px;
+      width: 250px;
+      max-height: 80vh;
+      overflow-y: auto;
+      background-color: #1e1e1e;
+      border: 2px solid #555;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    #plant-list h2 {
+      color: #90caf9;
+      font-size: 16px;
+      margin-top: 0;
+    }
+
+    #plant-list ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #plant-list li {
+      margin: 4px 0;
+    }
+
+    #plant-list li.completed {
+      text-decoration: line-through;
+      color: #888;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🌱 Plant Identification</h1>
+
+  <!-- 🔸 Selector de baralla -->
+  <select id="deck-select" onchange="selectDeck()">
+    <option value="deck1">List 1</option>
+    <option value="deck2">List 2</option>
+    <option value="deck3">List 3</option>
+    <option value="deck4">List 4</option>
+
+  </select>
+
+  <div id="scoreboard">
+    ✅ Correct: <span id="correct-count">0</span> ❌ Wrong:
+    <span id="wrong-count">0</span> 🔢 Attempts:
+    <span id="attempt-count">0</span> ♻️ Cycles:
+    <span id="cycle-count">0</span>
+    <span id="deck-name">🃏 Baralla: 1</span>
+  </div>
+
+  <div id="plant-container">
+    <img id="plant-image" src="" alt="plant" />
+  </div>
+  <br />
+  <input type="text" id="guess" placeholder="Type the name..." />
+  <button id="action-button" onclick="checkOrNext()">Continue</button>
+  <p id="result"></p>
+  <p id="summary"></p>
+
+  <div id="plant-list">
+    <h2>🌿 Plants</h2>
+    <ul id="plant-items"></ul>
+  </div>
+
+  <script>
+    // 🔸 Baralles numerades (pots anar afegint-ne més)
+    const decks = {
+      deck1: [
+        "abeliaxgrandiflora",
+        "acanthus mollis",
+        "acca sellowiana",
+        "acer monspessulanum",
+        "agapanthus africanus",
+        "albizia julibrissin",
+        "arbutus unedo",
+        "asparagus densiflorus",
+        "aucuba japonica",
+        "bergenia crassifolia",
+        "bougainvillea glabra",
+        "brachychiton populneus",
+        "buxus sempervirens",
+        "calendula officinalis",
+        "callistemon citrinus",
+        "catalpa bignonioides",
+        "cedrus deodara",
+        "celtis australis",
+        "ceratonia siliqua",
+        "cercis siliquastrum",
+        "chamaerops humilis",
+        "cistus monspeliensis",
+        "citrus aurantium",
+      ],
+      deck2: [
+        "convolvulus cneorum",
+        "coronilla glauca",
+        "cotoneaster pannosus",
+        "crataegus monogyna",
+        "cupressus sempervirens",
+        "cyclamen persicum",
+        "cynodon dactylon",
+        "cyperus involucratus",
+        "cyrtomium falcatum"
+      ],
+      deck3: [],
+      deck4: [],
+    };
+
+    // 🔸 Plantes amb les seves imatges
+    const plants = {
+      abeliaxgrandiflora: ["AbeliaXgrandiflora.png", "abelia2.png"],
+      "acanthus mollis": ["Acanthus_mollis.png", "acant2.png"],
+      "acca sellowiana": [
+        "Acca_sellowiana.png",
+        "feijoa-acca-sellowiana-semillas.png",
+        "feijoa.png",
+      ],
+      "acer monspessulanum": ["Acer_monspessulanum.png", "acer2.png"],
+      "agapanthus africanus": ["Agapanthus africanus.png"],
+      "albizia julibrissin": ["Albizia julibrissin.png", "albizia2.png"],
+      "arbutus unedo": ["arbutus unedo.png", "arbutusunedo2.png"],
+      "asparagus densiflorus": [
+        "Asparagus densiflorus.png",
+        "asparagus2.png",
+      ],
+      "aucuba japonica": ["Aucuba japonica.png"],
+      "bergenia crassifolia": ["Bergenia crassifolia.png", "Bergenia2.png"],
+      "bougainvillea glabra": [
+        "Bougainvillea glabra.png",
+        "bougainvillea2.png",
+      ],
+      "brachychiton populneus": [
+        "Brachychiton populneus.png",
+        "Brachychiton2.png",
+        "Brachychiton3.png",
+      ],
+      "buxus sempervirens": [
+        "Buxus sempervirens.png",
+        "buxus2.png",
+        "buxus3.png",
+      ],
+      "calendula officinalis": [
+        "Calendula officinalis.png",
+        "Calendula2.png",
+      ],
+      "callistemon citrinus": [
+        "Callistemon citrinus.png",
+        "Callistemon2.png",
+      ],
+      "catalpa bignonioides": [
+        "Catalpa bignonioides.png",
+        "Catalpa2.png",
+        "Catalpa3.png",
+      ],
+      "cedrus deodara": ["Cedrus deodara.png", "Cedrus2.png"],
+      "celtis australis": ["Celtis australis.png", "Celtis2.png"],
+      "ceratonia siliqua": ["Ceratonia siliqua.png", "Ceratonia2.png"],
+      "cercis siliquastrum": [
+        "Cercis siliquastrum.png",
+        "Cercis2.png",
+        "Cercis3.png",
+      ],
+      "chamaerops humilis": ["Chamaerops humilis.png"],
+      "cistus monspeliensis": ["Cistus monspeliensis.png", "Cistus2.png"],
+      "citrus aurantium": ["Citrus aurantium.png", "Citrus2.png"],
+      // 2nd deck:
+      "convolvulus cneorum": ["Convolvulus cneorum.png", "Convolvulus2.png"],
+      "coronilla glauca": ["Coronilla glauca.png", "Coronilla2.png"],
+      "cotoneaster pannosus": [
+        "Cotoneaster pannosus.png",
+        "Cotoneaster2.png",
+      ],
+      "crataegus monogyna": ["Crataegus monogyna.png", "Crataegus2.png"],
+      "cupressus sempervirens": ["Cupressus sempervirens.png"],
+      "cyclamen persicum": ["Cyclamen persicum.png"],
+      "cynodon dactylon": ["Cynodon dactylon.png"],
+      "cyperus involucratus": ["Cyperus involucratus.png"],
+      "cyrtomium falcatum": ["Cyrtomium falcatum.png", "Cyrtomium2.png"]
+    };
+
+    // 🔸 Noms comuns en català/castellà
+    const commonNames = {
+      abeliaxgrandiflora: "Abèlia",
+      "acanthus mollis": "Acant de fulla ampla",
+      "acca sellowiana": "Feijoa",
+      "acer monspessulanum": "Auró negre",
+      "agapanthus africanus": "Agapant",
+      "albizia julibrissin": "Acàcia de Constantinoble / Árbol de la seda",
+      "arbutus unedo": "Cireretes de pastor / Madroño",
+      "asparagus densiflorus": "Esparraguera de jardí",
+      "aucuba japonica": "Llorer tacat",
+      "bergenia crassifolia": "Bergènia / Hortensia de invierno",
+      "bougainvillea glabra": "Buguenvíl·lea / Buganvilla común",
+      "brachychiton populneus": "Arbre ampolla / Árbol botella",
+      "buxus sempervirens": "Boix comú / Boj",
+      "calendula officinalis": "Calèndula / Boixac Anual / Flamenquilla",
+      "callistemon citrinus": "Escura-xemeneies / Limpiatubos",
+      "catalpa bignonioides": "Catalpa",
+      "cedrus deodara": "Cedre de l'Himàlaia",
+      "celtis australis": "Lledoner / Almer",
+      "ceratonia siliqua": "Garrofer / Algarrobo",
+      "cercis siliquastrum": "Arbre de l'amor / Arbre de Judes",
+      "chamaerops humilis": "Margalló / Palmito",
+      "cistus monspeliensis": "Estepa negra / Jaguarzo negro",
+      "citrus aurantium": "Taronger agre / Naranjo amargo",
+      // 2nd deck:
+      "convolvulus cneorum":
+        "Campanera argentada / Campanilla de hojas plateadas",
+      "coronilla glauca": "Coronil·la / Carolina de jardín",
+      "cotoneaster pannosus": "Cotoneaster / Griñolera afelpada",
+      "crataegus monogyna": "Arç blanc / Espino albar",
+      "cupressus sempervirens": "Xiprer / Ciprés",
+      "cyclamen persicum": "Ciclamen",
+      "cynodon dactylon": "Gram / Grama común",
+      "cyperus involucratus": "Paraigüets / Paraguas",
+      "cyrtomium falcatum": "Falguera grèvol / Cirtomio"
+    };
+
+    // Variables de joc
+    const savedDeck = localStorage.getItem("selectedDeck");
+    let currentDeck = decks[savedDeck] || decks.deck1;
+    document.addEventListener("DOMContentLoaded", () => {
+      const select = document.getElementById("deck-select");
+      if (savedDeck) {
+        select.value = savedDeck;
+        const listNumber = select.options[select.selectedIndex].text.match(/\d+/)?.[0] || "?";
+        document.getElementById("deck-name").textContent = `🃏 List: ${listNumber}`;
+      }
+
+    });
+    let currentSciName = "";
+    let currentImage = "";
+    let zoomLevel = 1;
+    let attempts = 0;
+    let correct = 0;
+    let wrong = 0;
+    let cycles = 0;
+    let phase = 1;
+    let answered = false;
+    let deck = [];
+    let remainingImages = {};
+
+    // Render lateral
+    function renderPlantList() {
+      const ul = document.getElementById("plant-items");
+      ul.innerHTML = "";
+      currentDeck.forEach((name) => {
+        const li = document.createElement("li");
+        li.id = "plant-" + name.replace(/\s+/g, "-");
+        li.textContent = name;
+        ul.appendChild(li);
+      });
+    }
+
+    function markPlantCompleted(name) {
+      const li = document.getElementById(
+        "plant-" + name.replace(/\s+/g, "-")
+      );
+      if (li) li.classList.add("completed");
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function initDeck() {
+      deck = shuffle(currentDeck.map((name) => name));
+      remainingImages = {};
+      currentDeck.forEach((name) => {
+        remainingImages[name] = plants[name] ? plants[name].slice() : [];
+      });
+      renderPlantList();
+    }
+
+    function selectDeck() {
+      const select = document.getElementById("deck-select");
+      const selected = select.value;
+      localStorage.setItem("selectedDeck", selected);
+      currentDeck = decks[selected] || [];
+      document.getElementById("deck-name").textContent =
+        `🃏 Baralla: ${select.value.replace('deck', '')}`;
+      initDeck();
+      nextPlant();
+    }
+
+    function normalize(text) {
+      return text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
+
+    function nextPlant() {
+      if (deck.length === 0) {
+        cycles++;
+        updateScoreboard();
+
+        if (currentDeck.length === 0) {
+          document.getElementById("summary").textContent = "⚠️ No hi ha plantes vàlides en aquesta llista!";
+          return;
+        }
+
+        document.getElementById("summary").textContent = `🎉 Cycle ${cycles} completed!`;
+        setTimeout(() => document.getElementById("summary").textContent = "", 2000);
+        initDeck();
+        return;
+      }
+
+
+      const randomIndex = Math.floor(Math.random() * deck.length);
+      currentSciName = deck[randomIndex];
+      const imgs = remainingImages[currentSciName];
+      if (!imgs || imgs.length === 0) return nextPlant();
+      currentImage = imgs[Math.floor(Math.random() * imgs.length)];
+
+      const img = document.getElementById("plant-image");
+      img.src = currentImage;
+      img.style.transform = "scale(1)";
+      zoomLevel = 1;
+
+      document.getElementById("result").textContent = "";
+      const guessInput = document.getElementById("guess");
+      guessInput.value = "";
+      guessInput.disabled = false;
+      guessInput.focus();
+      answered = false;
+      phase = 1;
+    }
+
+    function checkOrNext() {
+      const guessInput = document.getElementById("guess");
+      const guess = normalize(guessInput.value.trim());
+      const sciName = normalize(currentSciName);
+      const common = normalize(commonNames[currentSciName] || "");
+
+      if (answered || guess === "") {
+        attempts++;
+        updateScoreboard();
+        nextPlant();
+        return;
+      }
+
+      if (phase === 1) {
+        attempts++;
+        if (guess.length >= 3 && sciName.includes(guess)) {
+          document.getElementById(
+            "result"
+          ).innerHTML = `✅ Correct (phase 1) → <span class="sci-name">${currentSciName}</span>`;
+          phase = 2;
+          guessInput.value = "";
+        } else {
+          wrong++;
+          document.getElementById(
+            "result"
+          ).innerHTML = `❌ It was: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""
+          }</span>`;
+          answered = true;
+        }
+        updateScoreboard();
+        return;
+      }
+
+      if (phase === 2) {
+        attempts++;
+        if (guess.length >= 3 && common.includes(guess)) {
+          correct++;
+          document.getElementById(
+            "result"
+          ).innerHTML = `✅ Correct (phase 2) → <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""
+          }</span>`;
+          remainingImages[currentSciName] = remainingImages[
+            currentSciName
+          ].filter((img) => img !== currentImage);
+          if (remainingImages[currentSciName].length === 0) {
+            deck = deck.filter((name) => name !== currentSciName);
+            markPlantCompleted(currentSciName);
+          }
+          if (deck.length === 0) {
+            cycles++;
+            updateScoreboard();
+
+            if (currentDeck.length === 0) {
+              document.getElementById("summary").textContent = "⚠️ No hi ha plantes vàlides en aquesta llista!";
+              return;
+            }
+
+            document.getElementById("summary").textContent = `🎉 Cycle ${cycles} completed!`;
+            setTimeout(() => document.getElementById("summary").textContent = "", 2000);
+            initDeck();
+            return;
+          }
+
+        } else {
+          wrong++;
+          document.getElementById(
+            "result"
+          ).innerHTML = `❌ It was: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""
+          }</span>`;
+        }
+        answered = true;
+        updateScoreboard();
+      }
+    }
+
+    function updateScoreboard() {
+      document.getElementById("correct-count").textContent = correct;
+      document.getElementById("wrong-count").textContent = wrong;
+      document.getElementById("attempt-count").textContent = attempts;
+      document.getElementById("cycle-count").textContent = cycles;
+    }
+
+    const img = document.getElementById("plant-image");
+    img.addEventListener("wheel", (event) => {
+      event.preventDefault();
+      const rect = img.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      img.style.transformOrigin = `${x}% ${y}%`;
+      zoomLevel += event.deltaY < 0 ? 0.1 : -0.1;
+      zoomLevel = Math.max(0.5, Math.min(3, zoomLevel));
+      img.style.transform = `scale(${zoomLevel})`;
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        document.getElementById("action-button").click();
+        document.getElementById("guess").focus();
+      }
+    });
+
+    initDeck();
+    nextPlant();
+  </script>
+</body>
+
+</html>
