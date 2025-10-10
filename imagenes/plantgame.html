@@ -291,6 +291,11 @@
         transform: translate(-50%, -50%) scale(0.95);
       }
     }
+
+    h1:hover,
+    #plant-list li:hover {
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -581,8 +586,10 @@
 
             switchToCommonNames(name);
           } else {
+            wrong++;
+            updateScoreboard();
             document.getElementById("result").innerHTML =
-              `ℹ️ This image belongs to <span class="sci-name">${currentSciName}</span>`;
+              `❌ Wrong → This image belongs to <span class="sci-name">${currentSciName}</span>`;
           }
         });
 
@@ -625,7 +632,7 @@
       localStorage.setItem("selectedDeck", selected);
       currentDeck = decks[selected] || [];
       document.getElementById("deck-name").textContent =
-        `🃏 Baralla: ${select.value.replace('deck', '')}`;
+        `${select.value.replace('deck', '')}`;
       initDeck();
       nextPlant();
     }
@@ -782,6 +789,10 @@
       const msg = document.getElementById("welcome-message");
       if (msg) msg.remove();
     }, 3000);
+
+    document.querySelector("h1").addEventListener("click", () => {
+      location.reload();
+    });
 
     initDeck();
     nextPlant();
