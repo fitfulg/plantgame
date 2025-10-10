@@ -375,7 +375,10 @@
         "cyclamen persicum",
         "cynodon dactylon",
         "cyperus involucratus",
-        "cyrtomium falcatum"
+        "cyrtomium falcatum",
+        "elaeagnus x ebbingei",
+        "erigeron karvinskianus",
+        "escallonia rubra"
       ],
       deck3: [],
       deck4: [],
@@ -449,7 +452,10 @@
       "cyclamen persicum": ["Cyclamen persicum.png"],
       "cynodon dactylon": ["Cynodon dactylon.png"],
       "cyperus involucratus": ["Cyperus involucratus.png"],
-      "cyrtomium falcatum": ["Cyrtomium falcatum.png", "Cyrtomium2.png"]
+      "cyrtomium falcatum": ["Cyrtomium falcatum.png", "Cyrtomium2.png"],
+      "elaeagnus x ebbingei": ["Elaeagnus x ebbingei.png"],
+      "erigeron karvinskianus": ["Erigeron karvinskianus.png"],
+      "escallonia rubra": ["Escallonia rubra.png", "Escallonia2.png"],
     };
 
     // Noms comuns en català/castellà
@@ -487,7 +493,10 @@
       "cyclamen persicum": "Ciclamen",
       "cynodon dactylon": "Gram / Grama común",
       "cyperus involucratus": "Paraigüets / Paraguas",
-      "cyrtomium falcatum": "Falguera grèvol / Cirtomio"
+      "cyrtomium falcatum": "Falguera grèvol / Cirtomio",
+      "elaeagnus x ebbingei": "Eleagne d'Ebbinge / Eleagno de Ebbinge",
+      "erigeron karvinskianus": "Vitadínia / Margarita cimarrona",
+      "escallonia rubra": "Escal·lònia / Escalonia",
     };
 
     // vars
@@ -644,6 +653,25 @@
         .toLowerCase();
     }
 
+    function isApproxMatch(input, target) {
+      input = normalize(input);
+      target = normalize(target);
+
+      if (input.length < 3) return false;
+
+      for (let i = 0; i < input.length - 2; i++) {
+        const segment = input.slice(i, i + 3);
+        if (target.includes(segment)) return true;
+      }
+
+      let matches = 0;
+      for (let char of input) {
+        if (target.includes(char)) matches++;
+      }
+      return matches / target.length >= 0.6;
+    }
+
+
     function nextPlant() {
       if (showingCommon) {
         showingCommon = false;
@@ -701,7 +729,7 @@
 
       if (phase === 1) {
         attempts++;
-        if (guess.length >= 3 && sciName.includes(guess)) {
+        if (isApproxMatch(guess, sciName)) {
           document.getElementById("result").innerHTML =
             `✅ Correct (phase 1) → <span class="sci-name">${currentSciName}</span>`;
           phase = 2;
@@ -721,7 +749,7 @@
 
       if (phase === 2) {
         attempts++;
-        if (guess.length >= 3 && common.includes(guess)) {
+        if (isApproxMatch(guess, common)) {
           correct++;
           document.getElementById(
             "result"
