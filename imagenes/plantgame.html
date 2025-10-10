@@ -509,6 +509,45 @@
     let deck = [];
     let remainingImages = {};
     let showingCommon = false;
+    let completedPlants = new Set();
+
+    function switchToCommonNames(currentPlant) {
+      showingCommon = true;
+      const ul = document.getElementById("plant-items");
+      ul.innerHTML = "";
+
+      currentDeck.forEach(name => {
+        const li = document.createElement("li");
+        li.id = "plant-" + name.replace(/\s+/g, "-");
+        li.textContent = commonNames[name] || name;
+
+        if (document.querySelector(`#plant-${name.replace(/\s+/g, "-")}.completed`)) {
+          li.classList.add("completed");
+        }
+
+        li.addEventListener("click", () => {
+          if (name === currentPlant) {
+            correct++;
+            updateScoreboard();
+
+            const remaining = remainingImages[name] || [];
+            if (remaining.length <= 1) {
+              markPlantCompleted(name);
+              deck = deck.filter(n => n !== name);
+            } else {
+              remaining.pop();
+            }
+
+            showingCommon = false;
+            renderPlantList();
+            nextPlant();
+          }
+        });
+
+
+        ul.appendChild(li);
+      });
+    }
 
     function renderPlantList() {
       const ul = document.getElementById("plant-items");
@@ -517,52 +556,29 @@
       currentDeck.forEach(name => {
         const li = document.createElement("li");
         li.id = "plant-" + name.replace(/\s+/g, "-");
-        li.textContent = showingCommon && commonNames[name]
-          ? commonNames[name]
-          : name;
+        li.textContent = name;
+        if (completedPlants.has(name)) {
+          li.classList.add("completed");
+        }
 
         li.addEventListener("click", () => {
-          const sciName = name;
-          const common = commonNames[name] || "";
+          if (showingCommon) return;
 
+          const sciName = name;
           if (currentSciName === name) {
             correct++;
-
-            if (remainingImages[name] && remainingImages[name].length > 0) {
-              remainingImages[name].pop();
-            }
-
-            if (!remainingImages[name] || remainingImages[name].length === 0) {
-              markPlantCompleted(name);
-              deck = deck.filter(n => n !== name);
-            }
+            updateScoreboard();
 
             document.getElementById("result").innerHTML =
               `✅ Correct → <span class="sci-name">${sciName}</span>`;
-            updateScoreboard();
 
-            if (!showingCommon) {
-              showingCommon = true;
-              renderPlantList();
-            }
+            const totalImages = plants[name]?.length || 0;
+            if (totalImages <= 1) markPlantCompleted(name);
 
-            if (deck.length === 0) {
-              cycles++;
-              showingCommon = false;
-              updateScoreboard();
-              document.getElementById("summary").textContent = `🎉 Cycle ${cycles} completed!`;
-              setTimeout(() => (document.getElementById("summary").textContent = ""), 2000);
-              initDeck();
-              return;
-            }
-
-            if (!remainingImages[name] || remainingImages[name].length === 0) {
-              nextPlant();
-            }
-
+            switchToCommonNames(name);
           } else {
             document.getElementById("result").innerHTML =
-              `ℹ️ This image belongs to <span class="sci-name">${currentSciName}</span> (${commonNames[currentSciName] || "unknown"})`;
+              `ℹ️ This image belongs to <span class="sci-name">${currentSciName}</span>`;
           }
         });
 
@@ -574,11 +590,11 @@
 
 
     function markPlantCompleted(name) {
-      const li = document.getElementById(
-        "plant-" + name.replace(/\s+/g, "-")
-      );
+      completedPlants.add(name);
+      const li = document.getElementById("plant-" + name.replace(/\s+/g, "-"));
       if (li) li.classList.add("completed");
     }
+
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
