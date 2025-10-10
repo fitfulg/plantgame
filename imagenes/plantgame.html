@@ -516,12 +516,14 @@
       const ul = document.getElementById("plant-items");
       ul.innerHTML = "";
 
+      currentDeck = shuffle([...currentDeck]);
+
       currentDeck.forEach(name => {
         const li = document.createElement("li");
         li.id = "plant-" + name.replace(/\s+/g, "-");
         li.textContent = commonNames[name] || name;
 
-        if (document.querySelector(`#plant-${name.replace(/\s+/g, "-")}.completed`)) {
+        if (completedPlants.has(name)) {
           li.classList.add("completed");
         }
 
@@ -544,12 +546,14 @@
           }
         });
 
-
         ul.appendChild(li);
       });
     }
 
+
     function renderPlantList() {
+      currentDeck = shuffle([...currentDeck]);
+
       const ul = document.getElementById("plant-items");
       ul.innerHTML = "";
 
@@ -557,6 +561,7 @@
         const li = document.createElement("li");
         li.id = "plant-" + name.replace(/\s+/g, "-");
         li.textContent = name;
+
         if (completedPlants.has(name)) {
           li.classList.add("completed");
         }
@@ -573,7 +578,6 @@
               `✅ Correct → <span class="sci-name">${sciName}</span>`;
 
             const totalImages = plants[name]?.length || 0;
-            if (totalImages <= 1) markPlantCompleted(name);
 
             switchToCommonNames(name);
           } else {
@@ -585,6 +589,7 @@
         ul.appendChild(li);
       });
     }
+
 
 
 
@@ -610,6 +615,7 @@
       currentDeck.forEach((name) => {
         remainingImages[name] = plants[name] ? plants[name].slice() : [];
       });
+      currentDeck = shuffle([...currentDeck]);
       renderPlantList();
     }
 
@@ -689,17 +695,17 @@
       if (phase === 1) {
         attempts++;
         if (guess.length >= 3 && sciName.includes(guess)) {
-          document.getElementById(
-            "result"
-          ).innerHTML = `✅ Correct (phase 1) → <span class="sci-name">${currentSciName}</span>`;
+          document.getElementById("result").innerHTML =
+            `✅ Correct (phase 1) → <span class="sci-name">${currentSciName}</span>`;
           phase = 2;
           guessInput.value = "";
+
+          switchToCommonNames(currentSciName);
+          return;
         } else {
           wrong++;
-          document.getElementById(
-            "result"
-          ).innerHTML = `❌ It was: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""
-          }</span>`;
+          document.getElementById("result").innerHTML =
+            `❌ It was: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""}</span>`;
           answered = true;
         }
         updateScoreboard();
