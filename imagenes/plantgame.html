@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Plant Identification Game</title>
   <style>
     body {
@@ -40,7 +41,7 @@
 
     input {
       padding: 8px;
-      font-size: 18px;
+      font-size: 16px;
       width: 250px;
       border: 2px solid #555;
       border-radius: 5px;
@@ -50,7 +51,7 @@
 
     button {
       padding: 8px 16px;
-      font-size: 18px;
+      font-size: 16px;
       margin: 5px;
       border: none;
       border-radius: 5px;
@@ -141,13 +142,32 @@
       text-decoration: line-through;
       color: #888;
     }
+
+    @media (max-width: 768px) {
+      #plant-list {
+        position: static;
+        width: 100%;
+        max-height: none;
+        margin-top: 10px;
+      }
+
+      #plant-list ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      #plant-list li {
+        margin: 4px;
+        font-size: 12px;
+      }
+    }
   </style>
 </head>
 
 <body>
   <h1>🌱 Plant Identification</h1>
 
-  <!-- 🔸 Selector de baralla -->
   <select id="deck-select" onchange="selectDeck()">
     <option value="deck1">List 1</option>
     <option value="deck2">List 2</option>
@@ -179,7 +199,7 @@
   </div>
 
   <script>
-    // 🔸 Baralles numerades (pots anar afegint-ne més)
+
     const decks = {
       deck1: [
         "abeliaxgrandiflora",
@@ -221,7 +241,6 @@
       deck4: [],
     };
 
-    // 🔸 Plantes amb les seves imatges
     const plants = {
       abeliaxgrandiflora: ["AbeliaXgrandiflora.png", "abelia2.png"],
       "acanthus mollis": ["Acanthus_mollis.png", "acant2.png"],
@@ -293,7 +312,7 @@
       "cyrtomium falcatum": ["Cyrtomium falcatum.png", "Cyrtomium2.png"]
     };
 
-    // 🔸 Noms comuns en català/castellà
+    // Noms comuns en català/castellà
     const commonNames = {
       abeliaxgrandiflora: "Abèlia",
       "acanthus mollis": "Acant de fulla ampla",
@@ -331,7 +350,7 @@
       "cyrtomium falcatum": "Falguera grèvol / Cirtomio"
     };
 
-    // Variables de joc
+    // vars
     const savedDeck = localStorage.getItem("selectedDeck");
     let currentDeck = decks[savedDeck] || decks.deck1;
     document.addEventListener("DOMContentLoaded", () => {
@@ -355,14 +374,51 @@
     let deck = [];
     let remainingImages = {};
 
-    // Render lateral
     function renderPlantList() {
       const ul = document.getElementById("plant-items");
       ul.innerHTML = "";
-      currentDeck.forEach((name) => {
+
+      currentDeck.forEach(name => {
         const li = document.createElement("li");
         li.id = "plant-" + name.replace(/\s+/g, "-");
         li.textContent = name;
+
+        li.addEventListener("click", () => {
+          const sciName = name;
+          const common = commonNames[name] || "";
+
+          if (currentSciName === name) {
+            attempts++;
+            correct++;
+
+            if (remainingImages[name] && remainingImages[name].length > 0) {
+              remainingImages[name].pop();
+            }
+
+            if (!remainingImages[name] || remainingImages[name].length === 0) {
+              markPlantCompleted(name);
+              deck = deck.filter(n => n !== name);
+            }
+
+            document.getElementById("result").innerHTML =
+              `✅ Correct → <span class="sci-name">${sciName}</span> <span class="common-name">${common}</span>`;
+            updateScoreboard();
+
+            if (deck.length === 0) {
+              cycles++;
+              updateScoreboard();
+              document.getElementById("summary").textContent = `🎉 Cycle ${cycles} completed!`;
+              setTimeout(() => (document.getElementById("summary").textContent = ""), 2000);
+              initDeck();
+            } else {
+              nextPlant();
+            }
+          } else {
+            document.getElementById("result").innerHTML =
+              `ℹ️ This image belongs to <span class="sci-name">${currentSciName}</span> (${commonNames[currentSciName] || "unknown"})`;
+          }
+        });
+
         ul.appendChild(li);
       });
     }
