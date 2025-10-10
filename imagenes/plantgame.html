@@ -92,13 +92,57 @@
     }
 
     #scoreboard {
-      margin: 15px 0;
-      font-size: 18px;
+      margin: 15px auto;
+      font-size: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
     }
 
-    #scoreboard span {
-      margin: 0 10px;
+    #scoreboard .stat {
+      background-color: #1e1e1e;
+      border: 2px solid #444;
+      border-radius: 8px;
+      padding: 6px 10px;
+      min-width: 90px;
+      text-align: center;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     }
+
+    #scoreboard .stat span {
+      margin-left: 5px;
+      color: #fff;
+    }
+
+    #scoreboard .correct {
+      border-color: #4caf50;
+    }
+
+    #scoreboard .wrong {
+      border-color: #f44336;
+    }
+
+    #scoreboard .attempts {
+      border-color: #2196f3;
+    }
+
+    #scoreboard .cycles {
+      border-color: #8bc34a;
+    }
+
+    #scoreboard .deck {
+      border-color: #ffb300;
+    }
+
+    @media (max-width: 600px) {
+      #scoreboard .stat {
+        font-size: 14px;
+        padding: 5px 8px;
+      }
+    }
+
 
     #summary {
       font-size: 20px;
@@ -177,12 +221,13 @@
   </select>
 
   <div id="scoreboard">
-    ✅ Correct: <span id="correct-count">0</span> ❌ Wrong:
-    <span id="wrong-count">0</span> 🔢 Attempts:
-    <span id="attempt-count">0</span> ♻️ Cycles:
-    <span id="cycle-count">0</span>
-    <span id="deck-name">🃏 Baralla: 1</span>
+    <div class="stat correct">✅ Correct<span id="correct-count">0</span></div>
+    <div class="stat wrong">❌ Wrong<span id="wrong-count">0</span></div>
+    <div class="stat attempts">🔢 Attempts<span id="attempt-count">0</span></div>
+    <div class="stat cycles">♻️ Cycles<span id="cycle-count">0</span></div>
+    <div class="stat deck">🃏 List<span id="deck-name">1</span></div>
   </div>
+
 
   <div id="plant-container">
     <img id="plant-image" src="" alt="plant" />
