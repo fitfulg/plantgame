@@ -242,10 +242,47 @@
         font-size: 12px;
       }
     }
+
+    #welcome-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.85);
+      color: #ffeb3b;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 20px 30px;
+      border-radius: 12px;
+      text-align: center;
+      z-index: 9999;
+      opacity: 0;
+      animation: fadeInOut 2.5s ease-in-out forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% {
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <div id="welcome-message">✨ Escriu o selecciona la planta ✨</div>
+
   <h1>🌱 Plant game</h1>
 
   <select id="deck-select" onchange="selectDeck()">
@@ -278,7 +315,7 @@
   <p id="summary"></p>
 
   <div id="plant-list">
-    <h2>👇 Choose the plant:</h2>
+    <h2>👇 Selecciona la planta:</h2>
     <ul id="plant-items"></ul>
   </div>
 
@@ -457,6 +494,7 @@
     let attempts = 0;
     let deck = [];
     let remainingImages = {};
+    let showingCommon = false;
 
     function renderPlantList() {
       const ul = document.getElementById("plant-items");
@@ -465,7 +503,9 @@
       currentDeck.forEach(name => {
         const li = document.createElement("li");
         li.id = "plant-" + name.replace(/\s+/g, "-");
-        li.textContent = name;
+        li.textContent = showingCommon && commonNames[name]
+          ? commonNames[name]
+          : name;
 
         li.addEventListener("click", () => {
           const sciName = name;
@@ -487,15 +527,25 @@
               `✅ Correct → <span class="sci-name">${sciName}</span> <span class="common-name">${common}</span>`;
             updateScoreboard();
 
+            if (!showingCommon) {
+              showingCommon = true;
+              renderPlantList();
+            }
+
             if (deck.length === 0) {
               cycles++;
+              showingCommon = false;
               updateScoreboard();
               document.getElementById("summary").textContent = `🎉 Cycle ${cycles} completed!`;
               setTimeout(() => (document.getElementById("summary").textContent = ""), 2000);
               initDeck();
-            } else {
+              return;
+            }
+
+            if (!remainingImages[name] || remainingImages[name].length === 0) {
               nextPlant();
             }
+
           } else {
             document.getElementById("result").innerHTML =
               `ℹ️ This image belongs to <span class="sci-name">${currentSciName}</span> (${commonNames[currentSciName] || "unknown"})`;
@@ -505,6 +555,9 @@
         ul.appendChild(li);
       });
     }
+
+
+
 
     function markPlantCompleted(name) {
       const li = document.getElementById(
@@ -549,6 +602,11 @@
     }
 
     function nextPlant() {
+      if (showingCommon) {
+        showingCommon = false;
+        renderPlantList();
+      }
+
       if (deck.length === 0) {
         cycles++;
         updateScoreboard();
@@ -563,7 +621,6 @@
         initDeck();
         return;
       }
-
 
       const randomIndex = Math.floor(Math.random() * deck.length);
       currentSciName = deck[randomIndex];
@@ -584,6 +641,7 @@
       answered = false;
       phase = 1;
     }
+
 
     function checkOrNext() {
       const guessInput = document.getElementById("guess");
@@ -684,6 +742,10 @@
         document.getElementById("guess").focus();
       }
     });
+    setTimeout(() => {
+      const msg = document.getElementById("welcome-message");
+      if (msg) msg.remove();
+    }, 3000);
 
     initDeck();
     nextPlant();
