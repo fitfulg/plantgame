@@ -309,6 +309,8 @@
     <option value="deck2">Listat 2</option>
     <option value="deck3">Listat 3</option>
     <option value="deck4">Listat 4</option>
+    <option value="deck5">Listat 5</option>
+    <option value="deck6">Listat 6</option>
 
   </select>
 
@@ -379,10 +381,41 @@
         "elaeagnus x ebbingei",
         "erigeron karvinskianus",
         "escallonia rubra",
-        "eucalyptus camaldulensis"
+        "eucalyptus camaldulensis",
+        "euonymus japonicus",
       ],
-      deck3: [],
-      deck4: [],
+      deck3: [
+        "fatsia japonica",
+        "ficus carica",
+        "firmiana simplex",
+        "gazania sp",
+        "ginkgo biloba",
+        "gleditsia triacanthos",
+        "grevillea robusta",
+        "hedera helix",
+        "hibiscus rosa-sinensis",
+        "hibiscus syriacus",
+        "iris germanica",
+        "jacaranda mimosifolia",
+        "jasminum officinale",
+        "lagerstroemia indica"
+      ],
+      deck4: [
+        "lantana camara",
+        "laurus nobilis",
+        "lavandula angustifolia",
+        "lavandula dentata",
+        "ligustrum lucidum",
+        "lobularia maritima",
+        "magnolia grandiflora",
+        "medicago arborea",
+        "melia azedarach",
+        "myoporum tenuifolium",
+        "myrtus communis",
+        "nephrolepis cordifolia",
+        "nerium oleander",
+        "olea europaea"
+      ],
     };
 
     const plants = {
@@ -458,6 +491,37 @@
       "erigeron karvinskianus": ["Erigeron karvinskianus.png"],
       "escallonia rubra": ["Escallonia rubra.png", "Escallonia2.png"],
       "eucalyptus camaldulensis": ["Eucalyptus camaldulensis.png", "Eucalyptus2.png"],
+      "euonymus japonicus": ["Euonymus japonicus.png", "Euonymus2.png"],
+      // 3rd deck:
+      "fatsia japonica": ["Fatsia japonica.png", "Fatsia2.png"],
+      "ficus carica": ["Ficus carica.png", "Ficus2.png"],
+      "firmiana simplex": ["Firmiana simplex.png", "Firmiana2.png"],
+      "gazania sp": ["Gazania sp.png"],
+      "ginkgo biloba": ["Ginkgo biloba.png", "Ginkgo2.png"],
+      "gleditsia triacanthos": ["Gleditsia triacanthos.png", "Gleditsia2.png"],
+      "grevillea robusta": ["Grevillea robusta.png", "Grevillea2.png"],
+      "hedera helix": ["Hedera helix.png"],
+      "hibiscus rosa-sinensis": ["Hibiscus rosa-sinensis.png", "Hibiscus2.png"],
+      "hibiscus syriacus": ["Hibiscus syriacus.png", "Hibiscus syriacus2.png"],
+      "iris germanica": ["Iris germanica.png", "Iris2.png"],
+      "jacaranda mimosifolia": ["Jacaranda mimosifolia.png", "Jacaranda2.png"],
+      "jasminum officinale": ["Jasminum officinale.png", "Jasminum2.png"],
+      "lagerstroemia indica": ["Lagerstroemia indica.png", "Lagerstroemia2.png"],
+      // 4th deck:
+      "lantana camara": ["Lantana camara.png"],
+      "laurus nobilis": ["Laurus nobilis.png"],
+      "lavandula angustifolia": ["Lavandula angustifolia.png", "Lavandula2.png"],
+      "lavandula dentata": ["Lavandula dentata.png", "Lavandula dentata2.png"],
+      "ligustrum lucidum": ["Ligustrum lucidum.png", "Ligustrum2.png"],
+      "lobularia maritima": ["Lobularia maritima.png", "Lobularia2.png"],
+      "magnolia grandiflora": ["Magnolia grandiflora.png"],
+      "medicago arborea": ["Medicago arborea.png", "Medicago2.png"],
+      "melia azedarach": ["Melia azedarach.png", "Melia2.png"],
+      "myoporum tenuifolium": ["Myoporum tenuifolium.png", "Myoporum2.png"],
+      "myrtus communis": ["Myrtus communis.png", "Myrtus2.png", "Myrtus3.png"],
+      "nephrolepis cordifolia": ["Nephrolepis cordifolia.png", "Nephrolepis2.png"],
+      "nerium oleander": ["Nerium oleander.png"],
+      "olea europaea": ["Olea europaea.png", "Olea2.png"]
     };
 
     // Noms comuns en català/castellà
@@ -499,7 +563,39 @@
       "elaeagnus x ebbingei": "Eleagne d'Ebbinge / Eleagno de Ebbinge",
       "erigeron karvinskianus": "Vitadínia / Margarita cimarrona",
       "escallonia rubra": "Escal·lònia / Escalonia",
-      "eucalyptus camaldulensis": "Eucaliptus de fulla estreta / Gomero rojo"
+      "eucalyptus camaldulensis": "Eucaliptus de fulla estreta / Gomero rojo",
+      "euonymus japonicus": "Evònim del Japó / Bonetero del Japón",
+      // 3rd deck:
+      "fatsia japonica": "Aràlia del Japó / Aralia del Japón",
+      "ficus carica": "Figuera / Higuera",
+      "firmiana simplex": "Firmiana / Parasol de la China",
+      "gazania sp": "Gazània / Gazania",
+      "ginkgo biloba": "Ginkgo / Árbol de los cuarenta escudos",
+      "gleditsia triacanthos": "Acàcia de les tres punxes / Acacia de tres espinas",
+      "grevillea robusta": "Grevílea / Grevillea",
+      "hedera helix": "Heura / Hiedra",
+      "hibiscus rosa-sinensis": "Hibisc de la Xina/Rosa de China",
+      "hibiscus syriacus": "Hibisc de Síria / Altea de Siria",
+      "iris germanica": "Lliri blau / Lirio cárdeno",
+      "jacaranda mimosifolia": "Xicranda / Jacaranda",
+      "jasminum officinale": "Gessamí / Jazmín",
+      "lagerstroemia indica": "Arbre de Júpiter / Árbol de Júpiter",
+      // 4th deck:
+      "lantana camara": "Lantana / Bandera española",
+      "laurus nobilis": "Llorer / Laurel",
+      "lavandula angustifolia": "Espígol / Espliego",
+      "lavandula dentata": "Espígol retallat / Alhucema rizada",
+      "ligustrum lucidum": "Troana / Aligustre del Japón",
+      "lobularia maritima": "Caps blancs / Aliso de mar",
+      "magnolia grandiflora": "Magnòlia / Magnolio común",
+      "medicago arborea": "Alfals arbori / Alfalfa arborea",
+      "melia azedarach": "Mèlia / Cinamomo",
+      "myoporum tenuifolium": "Miòpor / Mióporo común",
+      "myrtus communis": "Murtra / Arrayán",
+      "nephrolepis cordifolia": "Espina de lluç / Helecho serrucho",
+      "nerium oleander": "Baladre / Adelfa",
+      "olea europaea": "Olivera / Olivo",
+      // 5th deck:
     };
 
     // vars
