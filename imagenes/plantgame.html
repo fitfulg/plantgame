@@ -220,23 +220,18 @@
       line-height: 1.5;
     }
 
-    @media (max-width: 768px) {
-      #plant-list ul {
-        display: block;
-      }
-
-      #plant-list li {
-        display: block;
-        font-size: 16px;
-        margin: 8px 0;
-        text-align: center;
-      }
+    #plant-list li {
+      margin: 8px 0;
+      font-size: 18px;
+      line-height: 1.5;
+      text-align: left;
     }
 
     #plant-list li.completed {
       text-decoration: line-through;
       color: #888;
     }
+
 
     @media (max-width: 768px) {
       #plant-list {
@@ -247,16 +242,18 @@
       }
 
       #plant-list ul {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+        display: block;
+        padding: 0 10px;
       }
 
       #plant-list li {
-        margin: 4px;
-        font-size: 12px;
+        display: block;
+        text-align: center;
+        font-size: 17px;
+        margin: 10px 0;
       }
     }
+
 
     #welcome-message {
       position: fixed;
