@@ -311,6 +311,29 @@
     #plant-list li:hover {
       cursor: pointer;
     }
+
+    #version-tag {
+      position: fixed;
+      bottom: 6px;
+      right: 10px;
+      font-size: 12px;
+      color: #90caf9;
+      opacity: 0.8;
+      font-family: monospace;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 3px 6px;
+      border-radius: 5px;
+      z-index: 999;
+    }
+
+    @media (max-width: 480px) {
+      #version-tag {
+        font-size: 11px;
+        bottom: 4px;
+        right: 6px;
+        opacity: 0.9;
+      }
+    }
   </style>
 </head>
 
@@ -1029,9 +1052,14 @@
       location.reload();
     });
 
+    const COMMIT_HASH = "5d2621d";
+    document.getElementById("version-tag").textContent = `v${COMMIT_HASH}`;
+
+
     initDeck();
     nextPlant();
   </script>
+  <div id="version-tag"></div>
 </body>
 
 </html>
