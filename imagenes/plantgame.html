@@ -1061,14 +1061,15 @@
     fetch("https://api.github.com/repos/fitfulg/plantgame/commits/main")
       .then(response => response.json())
       .then(data => {
-        const hash = data.sha.substring(0, 7);
+        const hash = data.sha.substring(0, 4).toUpperCase();
         const versionTag = document.getElementById("version-tag");
         if (versionTag) versionTag.textContent = `v${hash}`;
       })
       .catch(() => {
         const versionTag = document.getElementById("version-tag");
-        if (versionTag) versionTag.textContent = "v?.???????";
+        if (versionTag) versionTag.textContent = "v----";
       });
+
 
     initDeck();
     nextPlant();
@@ -1076,12 +1077,20 @@
 
   <div id="version-tag" style="
   position: fixed;
-  bottom: 8px;
+  bottom: 6px;
   right: 8px;
   font-size: 12px;
-  color: #90caf9;
+  font-family: monospace;
+  color: #bbb;
   opacity: 0.7;
+  user-select: none;
+  pointer-events: none;
+  text-shadow: 0 0 3px #000;
 ">
+  </div>
+
+  </div>
+
   </div>
 
 </body>
