@@ -868,13 +868,21 @@
     function selectDeck() {
       const select = document.getElementById("deck-select");
       const selected = select.value;
+      const newDeck = decks[selected];
+
+      if (!newDeck || newDeck.length === 0) {
+        document.getElementById("summary").textContent = "⚠️ Aquesta llista està buida!";
+        return;
+      }
+
       localStorage.setItem("selectedDeck", selected);
-      currentDeck = decks[selected] || [];
-      document.getElementById("deck-name").textContent =
-        `${select.value.replace('deck', '')}`;
+      currentDeck = [...newDeck];
+      document.getElementById("deck-name").textContent = selected.replace('deck', '');
+
       initDeck();
       nextPlant();
     }
+
 
     function normalize(text) {
       return text
@@ -1052,8 +1060,12 @@
       location.reload();
     });
 
-    const COMMIT_HASH = "5d2621d";
-    document.getElementById("version-tag").textContent = `v${COMMIT_HASH}`;
+    document.addEventListener("DOMContentLoaded", () => {
+      const COMMIT_HASH = "5d2621d";
+      const versionTag = document.getElementById("version-tag");
+      if (versionTag) versionTag.textContent = `v${COMMIT_HASH}`;
+    });
+
 
 
     initDeck();
