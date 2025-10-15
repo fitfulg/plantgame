@@ -1039,6 +1039,33 @@
       img.style.transform = `scale(${zoomLevel})`;
     });
 
+    let initialDistance = 0;
+
+    img.addEventListener("touchstart", (event) => {
+      if (event.touches.length === 2) {
+        event.preventDefault();
+        const dx = event.touches[0].clientX - event.touches[1].clientX;
+        const dy = event.touches[0].clientY - event.touches[1].clientY;
+        initialDistance = Math.sqrt(dx * dx + dy * dy);
+      }
+    }, { passive: false });
+
+    img.addEventListener("touchmove", (event) => {
+      if (event.touches.length === 2) {
+        event.preventDefault();
+        const dx = event.touches[0].clientX - event.touches[1].clientX;
+        const dy = event.touches[0].clientY - event.touches[1].clientY;
+        const newDistance = Math.sqrt(dx * dx + dy * dy);
+        const scaleChange = newDistance / initialDistance;
+        const newZoom = zoomLevel * scaleChange;
+
+        zoomLevel = Math.max(0.5, Math.min(3, newZoom));
+        img.style.transform = `scale(${zoomLevel})`;
+
+        initialDistance = newDistance;
+      }
+    }, { passive: false });
+
     document.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         document.getElementById("action-button").click();
