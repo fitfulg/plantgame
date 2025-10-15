@@ -1040,31 +1040,43 @@
     });
 
     let initialDistance = 0;
+    let lastZoomLevel = 1;
 
     img.addEventListener("touchstart", (event) => {
       if (event.touches.length === 2) {
         event.preventDefault();
+
         const dx = event.touches[0].clientX - event.touches[1].clientX;
         const dy = event.touches[0].clientY - event.touches[1].clientY;
         initialDistance = Math.sqrt(dx * dx + dy * dy);
+
+        const rect = img.getBoundingClientRect();
+        const midX = ((event.touches[0].clientX + event.touches[1].clientX) / 2 - rect.left) / rect.width * 100;
+        const midY = ((event.touches[0].clientY + event.touches[1].clientY) / 2 - rect.top) / rect.height * 100;
+
+        img.style.transformOrigin = `${midX}% ${midY}%`;
+        lastZoomLevel = zoomLevel;
       }
     }, { passive: false });
 
     img.addEventListener("touchmove", (event) => {
       if (event.touches.length === 2) {
         event.preventDefault();
+
         const dx = event.touches[0].clientX - event.touches[1].clientX;
         const dy = event.touches[0].clientY - event.touches[1].clientY;
         const newDistance = Math.sqrt(dx * dx + dy * dy);
+
         const scaleChange = newDistance / initialDistance;
-        const newZoom = zoomLevel * scaleChange;
+        let newZoom = lastZoomLevel * scaleChange;
 
-        zoomLevel = Math.max(0.5, Math.min(3, newZoom));
+        newZoom = Math.max(0.5, Math.min(3, newZoom));
+
+        zoomLevel = newZoom;
         img.style.transform = `scale(${zoomLevel})`;
-
-        initialDistance = newDistance;
       }
     }, { passive: false });
+
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
