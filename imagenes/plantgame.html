@@ -936,6 +936,9 @@
       img.style.transform = "scale(1)";
       zoomLevel = 1;
 
+      stopProgressiveHide();
+      startProgressiveHide();
+
       document.getElementById("result").textContent = "";
       const guessInput = document.getElementById("guess");
       guessInput.value = "";
@@ -1105,6 +1108,50 @@
         const versionTag = document.getElementById("version-tag");
         if (versionTag) versionTag.textContent = "v----";
       });
+
+    let hideInterval = null;
+
+    function startProgressiveHide() {
+      clearInterval(hideInterval);
+
+      const allPlants = Array.from(document.querySelectorAll("#plant-items li"));
+      const total = allPlants.length;
+      if (total <= 1) return;
+
+      const correctId = "plant-" + currentSciName.replace(/\s+/g, "-");
+      let visible = allPlants.map(li => li.id);
+      let step = 0;
+
+      hideInterval = setInterval(() => {
+        const remaining = visible.filter(id => id !== correctId);
+        if (remaining.length === 0) {
+          clearInterval(hideInterval);
+          return;
+        }
+
+
+        const toHide = Math.min(3, remaining.length - 1);
+
+        const selected = shuffle([...remaining]).slice(0, toHide);
+        selected.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = "none";
+        });
+
+        visible = visible.filter(id => !selected.includes(id));
+
+        if (visible.length === 1 && visible[0] === correctId) {
+          clearInterval(hideInterval);
+        }
+
+      }, 5000);
+    }
+
+    function stopProgressiveHide() {
+      clearInterval(hideInterval);
+      const allPlants = document.querySelectorAll("#plant-items li");
+      allPlants.forEach(li => li.style.display = "");
+    }
 
 
     initDeck();
