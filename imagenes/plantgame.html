@@ -399,8 +399,9 @@
   font-size:14px;
   transition:all 0.2s ease-in-out;
 ">
-      🏆 <span>Millors temps</span>
+      🏆 <span>Millors temps ▼</span>
     </button>
+
 
   </div>
 
@@ -1350,12 +1351,13 @@
         toggleBtn.addEventListener("click", () => {
           const isVisible = bestTimesDiv.style.display === "block";
           bestTimesDiv.style.display = isVisible ? "none" : "block";
-          toggleBtn.textContent = isVisible
-            ? "🏆 Mostrar millors temps"
-            : "🙈 Amagar millors temps";
+          toggleBtn.querySelector("span").textContent = isVisible
+            ? "Millors temps ▼"
+            : "Amagar millors temps ▲";
         });
       }
     });
+
 
 
     function showCycleCompletionMessage() {
