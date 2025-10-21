@@ -340,24 +340,74 @@
 
   <h1>🌱 Plant game</h1>
 
-  <select id="deck-select" onchange="selectDeck()">
-    <option value="deck1">Llistat 1</option>
-    <option value="deck2">Llistat 2</option>
-    <option value="deck3">Llistat 3</option>
-    <option value="deck4">Llistat 4</option>
-    <option value="deck5">Llistat 5</option>
-    <option value="deck6">Llistat 6</option>
-    <option value="deck7">Llistat 7</option>
+  <div id="top-bar" style="
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+">
+    <select id="deck-select" onchange="selectDeck()" style="
+    font-size: 15px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #222;
+    color: #fff;
+    border: 1px solid #555;
+  ">
+      <option value="deck1">Llistat 1</option>
+      <option value="deck2">Llistat 2</option>
+      <option value="deck3">Llistat 3</option>
+      <option value="deck4">Llistat 4</option>
+      <option value="deck5">Llistat 5</option>
+      <option value="deck6">Llistat 6</option>
+      <option value="deck7">Llistat 7</option>
+    </select>
 
-  </select>
-
-  <div id="scoreboard">
-    <div class="stat correct">✅ <span id="correct-count">0</span></div>
-    <div class="stat wrong">❌ <span id="wrong-count">0</span></div>
-    <div class="stat cycles">♻️ <span id="cycle-count">0</span></div>
-    <div class="stat deck">🃏: <span id="deck-name">2</span></div>
+    <div id="timer" style="
+    font-size: 20px;
+    color: #ffd54f;
+    line-height: 1;
+    margin-top: 2px;
+  ">
+      ⏱️ 0s
+    </div>
   </div>
 
+
+
+  <div id="scoreboard"
+    style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;">
+    <div class="stat correct">✅ <span id="correct-count">0</span></div>
+    <div class="stat wrong">❌ <span id="wrong-count">0</span></div>
+
+    <!-- Hidden stats for future use -->
+    <div class="stat cycles" style="display:none;">♻️ <span id="cycle-count">0</span></div>
+    <div class="stat deck" style="display:none;">🃏: <span id="deck-name">1</span></div>
+
+    <button id="toggle-best-btn" style="
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:#222;
+  border:2px solid #555;
+  border-radius:8px;
+  color:#ffca28;
+  padding:4px 10px;
+  cursor:pointer;
+  font-size:14px;
+  transition:all 0.2s ease-in-out;
+">
+      🏆 <span>Millors temps</span>
+    </button>
+
+  </div>
+
+  <div id="timer" style="font-size:16px;color:#ffd54f;text-align:center;margin-bottom:4px;"></div>
+
+  <div id="best-times" style="margin-top:4px;font-size:14px;color:#80cbc4;display:none;text-align:center;">
+  </div>
 
 
   <div id="plant-container">
@@ -796,6 +846,10 @@
     let remainingImages = {};
     let showingCommon = false;
     let completedPlants = new Set();
+    let startTime = null;
+    let timerInterval = null;
+    let bestTimes = JSON.parse(localStorage.getItem("bestTimes") || "{}");
+
 
     function switchToCommonNames(currentPlant) {
       showingCommon = true;
@@ -918,6 +972,68 @@
     //     forceCycleCompletion();
     //   }
     // });
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      startTime = Date.now();
+
+      const timerDisplay = document.getElementById("timer");
+      timerDisplay.textContent = "⏱️ 0s";
+
+      timerInterval = setInterval(() => {
+        const elapsedMs = Date.now() - startTime;
+
+        const days = Math.floor(elapsedMs / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((elapsedMs / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((elapsedMs / (1000 * 60)) % 60);
+        const seconds = Math.floor((elapsedMs / 1000) % 60);
+
+        let formatted = "⏱️ ";
+
+        if (days > 0) formatted += `${days}d `;
+        if (hours > 0 || days > 0) formatted += `${hours}h `;
+        if (minutes > 0 || hours > 0 || days > 0) formatted += `${minutes}m `;
+        formatted += `${seconds}s`;
+
+        timerDisplay.textContent = formatted.trim();
+      }, 1000);
+    }
+
+
+    function stopTimer() {
+      if (!timerInterval) return 0;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      startTime = null;
+      return parseFloat(elapsed);
+    }
+
+    function saveBestTime(elapsed) {
+      const deckName = document.getElementById("deck-select").value;
+      if (!elapsed || elapsed <= 0) return;
+
+      if (!bestTimes[deckName] || elapsed < bestTimes[deckName]) {
+        bestTimes[deckName] = elapsed;
+        localStorage.setItem("bestTimes", JSON.stringify(bestTimes));
+      }
+      renderBestTimes();
+    }
+
+    function renderBestTimes() {
+      const container = document.getElementById("best-times");
+      if (!container) return;
+      container.innerHTML = "<h3>🏆 Millors temps</h3>";
+
+      const ul = document.createElement("ul");
+      Object.keys(bestTimes).forEach(deck => {
+        const li = document.createElement("li");
+        li.textContent = `${deck.replace('deck', 'Llista ')} → ${bestTimes[deck]}s`;
+        ul.appendChild(li);
+      });
+      container.appendChild(ul);
+    }
+
+
 
 
     function initDeck() {
@@ -928,6 +1044,7 @@
       });
       currentDeck = shuffle([...currentDeck]);
       renderPlantList();
+      renderBestTimes();
     }
 
     function selectDeck() {
@@ -951,6 +1068,7 @@
 
       initDeck();
       nextPlant();
+      startTimer();
     }
 
     function normalize(text) {
@@ -1220,8 +1338,29 @@
 
     initDeck();
     nextPlant();
+    renderBestTimes();
+    startTimer();
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggleBtn = document.getElementById("toggle-best-btn");
+      const bestTimesDiv = document.getElementById("best-times");
+
+      if (toggleBtn && bestTimesDiv) {
+        toggleBtn.addEventListener("click", () => {
+          const isVisible = bestTimesDiv.style.display === "block";
+          bestTimesDiv.style.display = isVisible ? "none" : "block";
+          toggleBtn.textContent = isVisible
+            ? "🏆 Mostrar millors temps"
+            : "🙈 Amagar millors temps";
+        });
+      }
+    });
+
 
     function showCycleCompletionMessage() {
+      const elapsed = stopTimer();
+      saveBestTime(elapsed);
       if (document.querySelector("#restart-deck-btn") || document.querySelector("#next-deck-btn")) return;
 
       stopProgressiveHide();
@@ -1270,7 +1409,9 @@
         updateScoreboard();
         initDeck();
         nextPlant();
+        startTimer();
       });
+
 
       const nextBtn = document.getElementById("next-deck-btn");
       if (nextBtn) {
