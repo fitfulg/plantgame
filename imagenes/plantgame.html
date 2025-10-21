@@ -832,6 +832,7 @@
           }
         });
 
+
         ul.appendChild(li);
       });
     }
@@ -861,12 +862,17 @@
             updateScoreboard();
 
             document.getElementById("result").innerHTML =
-              `✅ Correcte! → <span class="sci-name">${sciName}</span>`;
+              `✅ Correcte → <span class="sci-name">${sciName}</span>`;
 
-            const totalImages = plants[name]?.length || 0;
+            phase = 2;
+            answered = false;
 
-            switchToCommonNames(name);
-          } else {
+            setTimeout(() => {
+              switchToCommonNames(name);
+            }, 200);
+          }
+
+          else {
             wrong++;
             updateScoreboard();
             document.getElementById("result").innerHTML =
@@ -1010,7 +1016,7 @@
         attempts++;
         if (isApproxMatch(guess, sciName)) {
           document.getElementById("result").innerHTML =
-            `✅ Correct (phase 1) → <span class="sci-name">${currentSciName}</span>`;
+            `✅ Correcte (fase 1) → <span class="sci-name">${currentSciName}</span>`;
           phase = 2;
           guessInput.value = "";
 
@@ -1019,7 +1025,7 @@
         } else {
           wrong++;
           document.getElementById("result").innerHTML =
-            `❌ It was: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""}</span>`;
+            `❌ La correcta era: <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""}</span>`;
           answered = true;
         }
         updateScoreboard();
@@ -1032,7 +1038,7 @@
           correct++;
           document.getElementById(
             "result"
-          ).innerHTML = `✅ Correct (phase 2) → <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""
+          ).innerHTML = `✅ Correcte (fase 2) → <span class="sci-name">${currentSciName}</span> <span class="common-name">${commonNames[currentSciName] || ""
           }</span>`;
           remainingImages[currentSciName] = remainingImages[
             currentSciName
