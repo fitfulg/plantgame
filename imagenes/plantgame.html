@@ -899,6 +899,27 @@
       return array;
     }
 
+    // // TEST MODE:
+    // function forceCycleCompletion() {
+    //   currentDeck.forEach(name => completedPlants.add(name));
+    //   deck = [];
+    //   cycles++;
+    //   updateScoreboard();
+    //   showCycleCompletionMessage();
+    //   console.log("🧪 Test: cicle forçat manualment.");
+    // }
+
+    // // Optional: listen for "T" key to force cycle completion
+    // document.addEventListener("keydown", (e) => {
+    //   const target = e.target.tagName.toLowerCase();
+    //   if (target === "input" || target === "textarea") return;
+
+    //   if (e.key.toLowerCase() === "t") {
+    //     forceCycleCompletion();
+    //   }
+    // });
+
+
     function initDeck() {
       deck = shuffle(currentDeck.map((name) => name));
       remainingImages = {};
@@ -919,6 +940,11 @@
         return;
       }
 
+      correct = 0;
+      wrong = 0;
+      cycles = 0;
+      updateScoreboard();
+
       localStorage.setItem("selectedDeck", selected);
       currentDeck = [...newDeck];
       document.getElementById("deck-name").textContent = selected.replace('deck', '');
@@ -926,7 +952,6 @@
       initDeck();
       nextPlant();
     }
-
 
     function normalize(text) {
       return text
@@ -953,7 +978,6 @@
       return matches / target.length >= 0.6;
     }
 
-
     function nextPlant() {
       if (showingCommon) {
         showingCommon = false;
@@ -961,18 +985,18 @@
       }
 
       if (deck.length === 0) {
-        cycles++;
-        updateScoreboard();
+        const allCompleted = currentDeck.every(name => completedPlants.has(name));
 
-        if (currentDeck.length === 0) {
-          document.getElementById("summary").textContent = "⚠️ No hi ha plantes vàlides en aquesta llista!";
+        if (allCompleted) {
+          cycles++;
+          updateScoreboard();
+          setTimeout(() => showCycleCompletionMessage(), 100);
+          return;
+        } else {
+          deck = shuffle(currentDeck.filter(name => !completedPlants.has(name)));
+          nextPlant();
           return;
         }
-
-        document.getElementById("summary").textContent = `🎉 Cycle ${cycles} completed!`;
-        setTimeout(() => document.getElementById("summary").textContent = "", 2000);
-        initDeck();
-        return;
       }
 
       const randomIndex = Math.floor(Math.random() * deck.length);
@@ -997,7 +1021,6 @@
       answered = false;
       phase = 1;
     }
-
 
     function checkOrNext() {
       const guessInput = document.getElementById("guess");
@@ -1047,18 +1070,12 @@
             deck = deck.filter((name) => name !== currentSciName);
             markPlantCompleted(currentSciName);
           }
+
           if (deck.length === 0) {
             cycles++;
             updateScoreboard();
 
-            if (currentDeck.length === 0) {
-              document.getElementById("summary").textContent = "⚠️ No hi ha plantes vàlides en aquesta llista!";
-              return;
-            }
-
-            document.getElementById("summary").textContent = `🎉 Cycle ${cycles} completed!`;
-            setTimeout(() => document.getElementById("summary").textContent = "", 2000);
-            initDeck();
+            showCycleCompletionMessage();
             return;
           }
 
@@ -1146,7 +1163,6 @@
       location.reload();
     });
 
-
     fetch("https://api.github.com/repos/fitfulg/plantgame/commits/main")
       .then(response => response.json())
       .then(data => {
@@ -1179,7 +1195,6 @@
           return;
         }
 
-
         const toHide = Math.min(3, remaining.length - 1);
 
         const selected = shuffle([...remaining]).slice(0, toHide);
@@ -1203,9 +1218,74 @@
       allPlants.forEach(li => li.style.display = "");
     }
 
-
     initDeck();
     nextPlant();
+
+    function showCycleCompletionMessage() {
+      if (document.querySelector("#restart-deck-btn") || document.querySelector("#next-deck-btn")) return;
+
+      stopProgressiveHide();
+
+      const summary = document.getElementById("summary");
+      const currentSelect = document.getElementById("deck-select");
+      const nextIndex = currentSelect.selectedIndex + 1;
+
+      summary.style.position = "fixed";
+      summary.style.top = "50%";
+      summary.style.left = "50%";
+      summary.style.transform = "translate(-50%, -50%)";
+      summary.style.background = "rgba(0,0,0,0.85)";
+      summary.style.color = "white";
+      summary.style.padding = "20px";
+      summary.style.borderRadius = "10px";
+      summary.style.zIndex = "9999";
+      summary.style.textAlign = "center";
+      summary.style.boxShadow = "0 0 12px rgba(255,255,255,0.4)";
+
+      summary.innerHTML = `
+    🎉 <b>Has completat el cicle!</b><br><br>
+    Vols passar al següent llistat o reiniciar aquest?<br><br>
+    <button id="restart-deck-btn"
+      style="padding:10px 18px;border:none;border-radius:6px;
+      background:#1976d2;color:white;font-size:15px;cursor:pointer;margin-right:10px;">
+      🔁 Reiniciar
+    </button>
+    ${nextIndex < currentSelect.options.length
+          ? `<button id="next-deck-btn"
+            style="padding:10px 18px;border:none;border-radius:6px;
+            background:#4caf50;color:white;font-size:15px;cursor:pointer;">
+            ⏭️ Següent
+          </button>`
+          : ""
+        }
+  `;
+
+      document.getElementById("restart-deck-btn").addEventListener("click", () => {
+        summary.removeAttribute("style");
+        summary.innerHTML = "";
+        cycles = 0;
+        correct = 0;
+        wrong = 0;
+        completedPlants.clear();
+        updateScoreboard();
+        initDeck();
+        nextPlant();
+      });
+
+      const nextBtn = document.getElementById("next-deck-btn");
+      if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+          summary.removeAttribute("style");
+          summary.innerHTML = "";
+          if (nextIndex < currentSelect.options.length) {
+            currentSelect.selectedIndex = nextIndex;
+            selectDeck();
+          } else {
+            summary.innerHTML = "🏁 <b>Has completat totes les llistes disponibles!</b>";
+          }
+        });
+      }
+    }
   </script>
 
   <div id="version-tag" style="
