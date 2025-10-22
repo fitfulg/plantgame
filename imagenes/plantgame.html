@@ -954,25 +954,25 @@
       return array;
     }
 
-    // // TEST MODE:
-    // function forceCycleCompletion() {
-    //   currentDeck.forEach(name => completedPlants.add(name));
-    //   deck = [];
-    //   cycles++;
-    //   updateScoreboard();
-    //   showCycleCompletionMessage();
-    //   console.log("🧪 Test: cicle forçat manualment.");
-    // }
+    // TEST MODE:
+    function forceCycleCompletion() {
+      currentDeck.forEach(name => completedPlants.add(name));
+      deck = [];
+      cycles++;
+      updateScoreboard();
+      showCycleCompletionMessage();
+      console.log("🧪 Test: cicle forçat manualment.");
+    }
 
-    // // Optional: listen for "T" key to force cycle completion
-    // document.addEventListener("keydown", (e) => {
-    //   const target = e.target.tagName.toLowerCase();
-    //   if (target === "input" || target === "textarea") return;
+    // Optional: listen for "T" key to force cycle completion
+    document.addEventListener("keydown", (e) => {
+      const target = e.target.tagName.toLowerCase();
+      if (target === "input" || target === "textarea") return;
 
-    //   if (e.key.toLowerCase() === "t") {
-    //     forceCycleCompletion();
-    //   }
-    // });
+      if (e.key.toLowerCase() === "t") {
+        forceCycleCompletion();
+      }
+    });
     function startTimer() {
       if (timerInterval) clearInterval(timerInterval);
       startTime = Date.now();
@@ -1372,26 +1372,31 @@
       const nextIndex = currentSelect.selectedIndex + 1;
 
       summary.style.position = "fixed";
-      summary.style.top = "50%";
+      summary.style.bottom = "10%";
       summary.style.left = "50%";
-      summary.style.transform = "translate(-50%, -50%)";
-      summary.style.background = "rgba(0,0,0,0.85)";
-      summary.style.color = "white";
-      summary.style.padding = "20px";
-      summary.style.borderRadius = "10px";
+      summary.style.transform = "translateX(-50%)";
+      summary.style.background = "rgba(0,0,0,0.9)";
+      summary.style.color = "#fff";
+      summary.style.padding = "16px 18px";
+      summary.style.borderRadius = "12px";
       summary.style.zIndex = "9999";
       summary.style.textAlign = "center";
-      summary.style.boxShadow = "0 0 12px rgba(255,255,255,0.4)";
+      summary.style.boxShadow = "0 0 12px rgba(255,255,255,0.25)";
+      summary.style.maxWidth = "90%";
+      summary.style.fontSize = "16px";
+      summary.style.lineHeight = "1.4";
+      summary.style.animation = "fadeIn 0.4s ease-in-out";
 
       summary.innerHTML = `
-    🎉 <b>Has completat el cicle!</b><br><br>
-    Vols passar al següent llistat o reiniciar aquest?<br><br>
-    <button id="restart-deck-btn"
-      style="padding:10px 18px;border:none;border-radius:6px;
-      background:#1976d2;color:white;font-size:15px;cursor:pointer;margin-right:10px;">
-      🔁 Reiniciar
-    </button>
-    ${nextIndex < currentSelect.options.length
+    🎉 <b>Has completat el llistat!</b><br><small>Temps: ${elapsed}s</small><br><br>
+    Vols passar al següent o reiniciar aquest?<br><br>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button id="restart-deck-btn"
+        style="padding:10px 18px;border:none;border-radius:6px;
+        background:#2196f3;color:white;font-size:15px;cursor:pointer;">
+        🔁 Reiniciar
+      </button>
+      ${nextIndex < currentSelect.options.length
           ? `<button id="next-deck-btn"
             style="padding:10px 18px;border:none;border-radius:6px;
             background:#4caf50;color:white;font-size:15px;cursor:pointer;">
@@ -1399,6 +1404,7 @@
           </button>`
           : ""
         }
+    </div>
   `;
 
       document.getElementById("restart-deck-btn").addEventListener("click", () => {
@@ -1414,7 +1420,6 @@
         startTimer();
       });
 
-
       const nextBtn = document.getElementById("next-deck-btn");
       if (nextBtn) {
         nextBtn.addEventListener("click", () => {
@@ -1424,11 +1429,12 @@
             currentSelect.selectedIndex = nextIndex;
             selectDeck();
           } else {
-            summary.innerHTML = "🏁 <b>Has completat totes les llistes disponibles!</b>";
+            summary.innerHTML = "🏁 <b>Has completat totes les llistes!</b>";
           }
         });
       }
     }
+
   </script>
 
   <div id="version-tag" style="
