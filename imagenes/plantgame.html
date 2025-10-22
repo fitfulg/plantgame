@@ -973,6 +973,7 @@
         forceCycleCompletion();
       }
     });
+
     function startTimer() {
       if (timerInterval) clearInterval(timerInterval);
       startTime = Date.now();
@@ -1009,6 +1010,22 @@
       return parseFloat(elapsed);
     }
 
+    function formatElapsedTime(seconds) {
+      const days = Math.floor(seconds / 86400);
+      const hours = Math.floor((seconds % 86400) / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = Math.floor(seconds % 60);
+
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      if (hours > 0) parts.push(`${hours}h`);
+      if (minutes > 0) parts.push(`${minutes}m`);
+      parts.push(`${secs}s`);
+
+      return parts.join(" ");
+    }
+
+
     function saveBestTime(elapsed) {
       const deckName = document.getElementById("deck-select").value;
       if (!elapsed || elapsed <= 0) return;
@@ -1027,14 +1044,13 @@
 
       const ul = document.createElement("ul");
       Object.keys(bestTimes).forEach(deck => {
+        const formatted = formatElapsedTime(bestTimes[deck]);
         const li = document.createElement("li");
-        li.textContent = `${deck.replace('deck', 'Llista ')} → ${bestTimes[deck]}s`;
+        li.textContent = `${deck.replace('deck', 'Llista ')} → ${formatted}`;
         ul.appendChild(li);
       });
       container.appendChild(ul);
     }
-
-
 
 
     function initDeck() {
