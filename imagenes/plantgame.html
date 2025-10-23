@@ -1374,7 +1374,12 @@
       const toHide = Math.min(3, remaining.length - 1);
       const selected = shuffle([...remaining]).slice(0, toHide);
       selected.forEach(li => li.style.display = "none");
+
+      if (startTime) {
+        startTime -= 5000;
+      }
     }
+
 
 
     function stopProgressiveHide() {
