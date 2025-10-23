@@ -948,25 +948,25 @@
       return array;
     }
 
-    // TEST MODE:
-    function forceCycleCompletion() {
-      currentDeck.forEach(name => completedPlants.add(name));
-      deck = [];
-      cycles++;
-      updateScoreboard();
-      showCycleCompletionMessage();
-      console.log("🧪 Test: cicle forçat manualment.");
-    }
+    // // TEST MODE:
+    // function forceCycleCompletion() {
+    //   currentDeck.forEach(name => completedPlants.add(name));
+    //   deck = [];
+    //   cycles++;
+    //   updateScoreboard();
+    //   showCycleCompletionMessage();
+    //   console.log("🧪 Test: cicle forçat manualment.");
+    // }
 
-    // Optional: listen for "T" key to force cycle completion
-    document.addEventListener("keydown", (e) => {
-      const target = e.target.tagName.toLowerCase();
-      if (target === "input" || target === "textarea") return;
+    // // Optional: listen for "T" key to force cycle completion
+    // document.addEventListener("keydown", (e) => {
+    //   const target = e.target.tagName.toLowerCase();
+    //   if (target === "input" || target === "textarea") return;
 
-      if (e.key.toLowerCase() === "t") {
-        forceCycleCompletion();
-      }
-    });
+    //   if (e.key.toLowerCase() === "t") {
+    //     forceCycleCompletion();
+    //   }
+    // });
 
     function startTimer() {
       if (timerInterval) clearInterval(timerInterval);
