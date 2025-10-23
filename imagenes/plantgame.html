@@ -411,7 +411,7 @@
   margin-left:5px;
   transition:all 0.2s ease;
 ">
-        ⏩ -5″
+        ⏩ +5″
       </button>
 
     </button>
@@ -1060,7 +1060,7 @@
       Object.keys(bestTimes).forEach(deck => {
         const formatted = formatElapsedTime(bestTimes[deck]);
         const li = document.createElement("li");
-        li.textContent = `${deck.replace('deck', 'Llista ')} → ${formatted}`;
+        li.textContent = `${deck.replace('deck', 'Llistat ')} → ${formatted}`;
         ul.appendChild(li);
       });
       container.appendChild(ul);
