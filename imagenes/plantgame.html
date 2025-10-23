@@ -866,91 +866,71 @@
     let bestTimes = JSON.parse(localStorage.getItem("bestTimes") || "{}");
 
 
-    function switchToCommonNames(currentPlant) {
-      showingCommon = true;
+    function renderList(isCommon = false, currentPlant = null) {
       const ul = document.getElementById("plant-items");
       ul.innerHTML = "";
-
-      currentDeck = shuffle([...currentDeck]);
 
       currentDeck.forEach(name => {
         const li = document.createElement("li");
         li.id = "plant-" + name.replace(/\s+/g, "-");
-        li.textContent = commonNames[name] || name;
+        li.textContent = isCommon ? (commonNames[name] || name) : name;
 
         if (completedPlants.has(name)) {
           li.classList.add("completed");
         }
 
         li.addEventListener("click", () => {
-          if (name === currentPlant) {
-            correct++;
-            updateScoreboard();
+          if (isCommon) {
+            if (name === currentPlant) {
+              correct++;
+              updateScoreboard();
 
-            const remaining = remainingImages[name] || [];
-            if (remaining.length <= 1) {
-              markPlantCompleted(name);
-              deck = deck.filter(n => n !== name);
-            } else {
-              remaining.pop();
+              const remaining = remainingImages[name] || [];
+              if (remaining.length <= 1) {
+                markPlantCompleted(name);
+                deck = deck.filter(n => n !== name);
+              } else {
+                remaining.pop();
+              }
+
+              showingCommon = false;
+              renderList(false);
+              nextPlant();
             }
+          } else {
+            if (showingCommon) return;
 
-            showingCommon = false;
-            renderPlantList();
-            nextPlant();
+            const sciName = name;
+            if (currentSciName === name) {
+              correct++;
+              updateScoreboard();
+              document.getElementById("result").innerHTML =
+                `✅ Correcte → <span class="sci-name">${sciName}</span>`;
+              phase = 2;
+              answered = false;
+              setTimeout(() => renderList(true, name), 200);
+            } else {
+              wrong++;
+              updateScoreboard();
+              document.getElementById("result").innerHTML =
+                `❌ Incorrecte → Aquesta imatge pertany a <span class="sci-name">${currentSciName}</span>`;
+            }
           }
         });
-
 
         ul.appendChild(li);
       });
     }
 
 
+    function switchToCommonNames(currentPlant) {
+      showingCommon = true;
+      renderList(true, currentPlant);
+    }
+
+
     function renderPlantList() {
-      currentDeck = shuffle([...currentDeck]);
-
-      const ul = document.getElementById("plant-items");
-      ul.innerHTML = "";
-
-      currentDeck.forEach(name => {
-        const li = document.createElement("li");
-        li.id = "plant-" + name.replace(/\s+/g, "-");
-        li.textContent = name;
-
-        if (completedPlants.has(name)) {
-          li.classList.add("completed");
-        }
-
-        li.addEventListener("click", () => {
-          if (showingCommon) return;
-
-          const sciName = name;
-          if (currentSciName === name) {
-            correct++;
-            updateScoreboard();
-
-            document.getElementById("result").innerHTML =
-              `✅ Correcte → <span class="sci-name">${sciName}</span>`;
-
-            phase = 2;
-            answered = false;
-
-            setTimeout(() => {
-              switchToCommonNames(name);
-            }, 200);
-          }
-
-          else {
-            wrong++;
-            updateScoreboard();
-            document.getElementById("result").innerHTML =
-              `❌ Incorrecte → Aquesta imatge pertany a <span class="sci-name">${currentSciName}</span>`;
-          }
-        });
-
-        ul.appendChild(li);
-      });
+      renderList(false);
     }
 
     function markPlantCompleted(name) {
@@ -968,51 +948,37 @@
       return array;
     }
 
-    // // TEST MODE:
-    // function forceCycleCompletion() {
-    //   currentDeck.forEach(name => completedPlants.add(name));
-    //   deck = [];
-    //   cycles++;
-    //   updateScoreboard();
-    //   showCycleCompletionMessage();
-    //   console.log("🧪 Test: cicle forçat manualment.");
-    // }
+    // TEST MODE:
+    function forceCycleCompletion() {
+      currentDeck.forEach(name => completedPlants.add(name));
+      deck = [];
+      cycles++;
+      updateScoreboard();
+      showCycleCompletionMessage();
+      console.log("🧪 Test: cicle forçat manualment.");
+    }
 
-    // // Optional: listen for "T" key to force cycle completion
-    // document.addEventListener("keydown", (e) => {
-    //   const target = e.target.tagName.toLowerCase();
-    //   if (target === "input" || target === "textarea") return;
+    // Optional: listen for "T" key to force cycle completion
+    document.addEventListener("keydown", (e) => {
+      const target = e.target.tagName.toLowerCase();
+      if (target === "input" || target === "textarea") return;
 
-    //   if (e.key.toLowerCase() === "t") {
-    //     forceCycleCompletion();
-    //   }
-    // });
+      if (e.key.toLowerCase() === "t") {
+        forceCycleCompletion();
+      }
+    });
 
     function startTimer() {
       if (timerInterval) clearInterval(timerInterval);
       startTime = Date.now();
-
       const timerDisplay = document.getElementById("timer");
-      timerDisplay.textContent = "⏱️ 0s";
 
       timerInterval = setInterval(() => {
-        const elapsedMs = Date.now() - startTime;
-
-        const days = Math.floor(elapsedMs / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((elapsedMs / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((elapsedMs / (1000 * 60)) % 60);
-        const seconds = Math.floor((elapsedMs / 1000) % 60);
-
-        let formatted = "⏱️ ";
-
-        if (days > 0) formatted += `${days}d `;
-        if (hours > 0 || days > 0) formatted += `${hours}h `;
-        if (minutes > 0 || hours > 0 || days > 0) formatted += `${minutes}m `;
-        formatted += `${seconds}s`;
-
-        timerDisplay.textContent = formatted.trim();
+        const elapsedSeconds = (Date.now() - startTime) / 1000;
+        timerDisplay.textContent = `⏱️ ${formatElapsedTime(elapsedSeconds)}`;
       }, 1000);
     }
+
 
 
     function stopTimer() {
@@ -1024,21 +990,20 @@
       return parseFloat(elapsed);
     }
 
-    function formatElapsedTime(seconds) {
-      const days = Math.floor(seconds / 86400);
-      const hours = Math.floor((seconds % 86400) / 3600);
-      const minutes = Math.floor((seconds % 3600) / 60);
-      const secs = Math.floor(seconds % 60);
+    function formatElapsedTime(totalSeconds) {
+      totalSeconds = Math.floor(totalSeconds);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
 
-      const parts = [];
+      let parts = [];
       if (days > 0) parts.push(`${days}d`);
-      if (hours > 0) parts.push(`${hours}h`);
-      if (minutes > 0) parts.push(`${minutes}m`);
-      parts.push(`${secs}s`);
-
+      if (hours > 0 || days > 0) parts.push(`${hours}h`);
+      if (minutes > 0 || hours > 0 || days > 0) parts.push(`${minutes}m`);
+      parts.push(`${seconds}s`);
       return parts.join(" ");
     }
-
 
     function saveBestTime(elapsed) {
       const deckName = document.getElementById("deck-select").value;
@@ -1418,6 +1383,7 @@
       const elapsed = stopTimer();
       saveBestTime(elapsed);
       if (document.querySelector("#restart-deck-btn") || document.querySelector("#next-deck-btn")) return;
+      const formattedElapsed = formatElapsedTime(elapsed);
 
       stopProgressiveHide();
 
@@ -1442,8 +1408,9 @@
       summary.style.animation = "fadeIn 0.4s ease-in-out";
 
       summary.innerHTML = `
-    🎉 <b>Has completat el llistat!</b><br><small>Temps: ${elapsed}s</small><br><br>
-    Vols passar al següent o reiniciar aquest?<br><br>
+🎉 <b>Has completat el llistat!</b><br>
+<small>⏱️ Temps: <b>${formattedElapsed}</b></small><br><br>
+Vols passar al següent o reiniciar aquest?<br><br>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
       <button id="restart-deck-btn"
         style="padding:10px 18px;border:none;border-radius:6px;
