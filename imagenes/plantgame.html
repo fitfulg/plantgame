@@ -1145,6 +1145,11 @@
       if (answered || guess === "") {
         attempts++;
         updateScoreboard();
+
+        showingCommon = false;
+        renderPlantList();
+        document.getElementById("result").textContent = "";
+
         nextPlant();
         return;
       }
