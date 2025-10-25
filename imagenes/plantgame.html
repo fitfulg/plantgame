@@ -1461,6 +1461,14 @@ Vols passar al següent o reiniciar aquest?<br><br>
       }
     }
 
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "+" || e.key === "=") {
+        e.preventDefault();
+        const skipBtn = document.getElementById("skip-hide-btn");
+        if (skipBtn) skipBtn.click();
+      }
+    });
+
   </script>
 
   <div id="version-tag" style="
